@@ -23,3 +23,34 @@ export const exportToCSV = (pois: any) => {
     a.click();
     document.body.removeChild(a);
 };
+
+
+export const getSentimentColor = (sentiment: string) => {
+    switch (sentiment.toLowerCase()) {
+      case 'positive':
+        return '#10B981'; // emerald-500
+      case 'negative':
+        return '#EF4444'; // red-500
+      case 'neutral':
+        return '#6B7280'; // gray-500
+      default:
+        return '#6B7280';
+    }
+  };
+  
+  export const getEmotionEmoji = (emotion: string) => {
+    switch (emotion.toLowerCase()) {
+      case 'joy':
+        return '😊';
+      case 'sadness':
+        return '😢';
+      case 'anger':
+        return '😠';
+      case 'fear':
+        return '😨';
+      case 'surprise':
+        return '😲';
+      default:
+        return '😐';
+    }
+  };

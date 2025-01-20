@@ -40,7 +40,6 @@ import {
   type POI
 } from './utils/api';
 
-
 export default function Home() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -159,7 +158,6 @@ export default function Home() {
       setCategories(categoryAnalytics.map((cat:any) => cat._id));
     } catch (err) {
       setError('Error loading data. Please try again.');
-      console.error('Error fetching data:', err);
     } finally {
       setIsLoading(false);
     }
@@ -185,32 +183,6 @@ export default function Home() {
   const handleViewChange = (index: number) => {
     updateUrlParams({ view: index === 0 ? null : index });
   };
-
-  // const exportToCSV = () => {
-  //   const headers = ['Name', 'Category', 'Sentiment', 'Latitude', 'Longitude'];
-  //   const csvData = pois.map(poi => [
-  //     poi.name,
-  //     poi.category,
-  //     poi.sentiment.label,
-  //     poi.location.coordinates[1],
-  //     poi.location.coordinates[0],
-  //   ]);
-
-  //   const csvContent = [
-  //     headers.join(','),
-  //     ...csvData.map(row => row.join(',')),
-  //   ].join('\n');
-
-  //   const blob = new Blob([csvContent], { type: 'text/csv' });
-  //   const url = window.URL.createObjectURL(blob);
-  //   const a = document.createElement('a');
-  //   a.setAttribute('hidden', '');
-  //   a.setAttribute('href', url);
-  //   a.setAttribute('download', 'pois_data.csv');
-  //   document.body.appendChild(a);
-  //   a.click();
-  //   document.body.removeChild(a);
-  // };
 
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment.toLowerCase()) {
@@ -240,172 +212,252 @@ export default function Home() {
 
   return (
     <Layout>
-      <div className="space-y-6">
-        {/* Header Section */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex-1 max-w-xl">
-              <SearchInput
-                value={searchTerm}
-                onChange={handleSearchChange}
-                minLength={2}
-                placeholder="Search POIs..."
-                className="mb-2 md:mb-0"
-              />
-            </div>
-            <div className="flex items-center gap-4">
-              <Select
-                value={selectedCategory}
-                onValueChange={handleCategoryChange}
-                className="min-w-[200px]"
-              >
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </Select>
-              <Button 
-                icon={ArrowDownTrayIcon}
-                onClick={()=>exportToCSV(pois)}
-                color="blue"
-                className="whitespace-nowrap"
-              >
-                Export
-              </Button>
+      {isLoading && (
+        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-xl">
+            <div className="flex flex-col items-center">
+              <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+              <p className="text-gray-600 dark:text-gray-300">Loading data...</p>
             </div>
           </div>
         </div>
+      )}
+      <div className="space-y-6">
+        {/* Hero Section */}
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 p-8 mb-6">
+          <div className="relative z-10">
+            <h1 className="text-3xl font-bold text-white mb-2">POI Analytics Dashboard</h1>
+            <p className="text-blue-100">Analyzing {pois.length} Points of Interest across {categories.length} categories</p>
+          </div>
+          <div className="absolute top-0 right-0 w-1/2 h-full opacity-10">
+            <MapPinIcon className="w-full h-full" />
+          </div>
+        </div>
 
-        {isLoading ? (
-          <Card>
-            <div className="h-96 flex items-center justify-center">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-400 mx-auto mb-4"></div>
-                <Text>Loading data...</Text>
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <Card 
+            className="transform transition-all duration-300 hover:scale-105 hover:shadow-lg bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900 dark:to-indigo-900"
+            decoration="left"
+            decorationColor="blue"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-blue-100 dark:bg-blue-800 rounded-lg">
+                <MapPinIcon className="w-6 h-6 text-blue-600 dark:text-blue-300" />
+              </div>
+              <div>
+                <Text className="text-sm text-blue-600 dark:text-blue-300">Total POIs</Text>
+                <Metric className="text-2xl font-bold text-blue-900 dark:text-blue-50">{pois.length}</Metric>
               </div>
             </div>
           </Card>
-        ) : (
-          <>
-            {/* Analytics Overview */}
-            <Grid numItems={1} numItemsSm={2} numItemsLg={3} className="gap-6">
-              <Card decoration="top" decorationColor="blue">
-                <Text>Total POIs</Text>
-                <Metric>{pois.length}</Metric>
-              </Card>
-              <Card decoration="top" decorationColor="emerald">
-                <Text>Categories</Text>
-                <Metric>{categories.length}</Metric>
-              </Card>
-              <Card decoration="top" decorationColor="amber">
-                <Text>Current Page</Text>
-                <Metric>{currentPage} of {totalPages}</Metric>
-              </Card>
-            </Grid>
 
-            {/* Main Content Tabs */}
-            <Card>
-              <TabGroup 
-                index={selectedView} 
-                onIndexChange={handleViewChange}
+          <Card 
+            className="transform transition-all duration-300 hover:scale-105 hover:shadow-lg bg-gradient-to-br from-emerald-50 to-teal-100 dark:from-emerald-900 dark:to-teal-900"
+            decoration="left"
+            decorationColor="emerald"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-emerald-100 dark:bg-emerald-800 rounded-lg">
+                <ListBulletIcon className="w-6 h-6 text-emerald-600 dark:text-emerald-300" />
+              </div>
+              <div>
+                <Text className="text-sm text-emerald-600 dark:text-emerald-300">Categories</Text>
+                <Metric className="text-2xl font-bold text-emerald-900 dark:text-emerald-50">{categories.length}</Metric>
+              </div>
+            </div>
+          </Card>
+
+          <Card 
+            className="transform transition-all duration-300 hover:scale-105 hover:shadow-lg bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900 dark:to-orange-900"
+            decoration="left"
+            decorationColor="amber"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-amber-100 dark:bg-amber-800 rounded-lg">
+                <ChartPieIcon className="w-6 h-6 text-amber-600 dark:text-amber-300" />
+              </div>
+              <div>
+                <Text className="text-sm text-amber-600 dark:text-amber-300">Positive Sentiment</Text>
+                <Metric className="text-2xl font-bold text-amber-900 dark:text-amber-50">
+                  {Math.round((pois.filter(p => p.sentiment.label === 'possitive').length / pois.length) * 100)}%
+                </Metric>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <Card className="bg-white dark:bg-gray-800 shadow-xl rounded-xl overflow-hidden">
+          <div className="border-b border-gray-200 dark:border-gray-700 p-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
+                  <ChartPieIcon className="w-6 h-6 text-indigo-600 dark:text-indigo-300" />
+                </div>
+                <Title>Analytics Overview</Title>
+              </div>
+              <div className="flex items-center gap-4">
+                <Select
+                  value={selectedCategory}
+                  onValueChange={handleCategoryChange}
+                  className="min-w-[150px]"
+                >
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <Button 
+                  icon={ArrowDownTrayIcon}
+                  onClick={() => exportToCSV(pois)}
+                  color="blue"
+                  className="whitespace-nowrap hover:shadow-lg transition-shadow"
+                >
+                  Export Data
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <TabGroup 
+            index={selectedView} 
+            onIndexChange={handleViewChange}
+          >
+            <TabList className="p-1 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+              <Tab 
+                className="px-6 py-3 text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+                icon={ChartPieIcon}
               >
-                <TabList className="mb-6">
-                  <Tab icon={ChartPieIcon}>Analytics</Tab>
-                  <Tab icon={MapPinIcon}>Map View</Tab>
-                  <Tab icon={ListBulletIcon}>List View</Tab>
-                </TabList>
-                
-                <TabPanels>
-                  <TabPanel>
-                    <Grid numItems={1} numItemsSm={2} className="gap-6">
-                      {sentimentData.length > 0 && (
-                        <Card>
-                          <Title>Sentiment Distribution</Title>
-                          <SentimentChart data={sentimentData} />
-                        </Card>
-                      )}
-                      {emotionsData && (
-                        <Card>
-                          <Title>Emotion Analysis</Title>
-                          <EmotionsChart data={emotionsData} />
-                        </Card>
-                      )}
-                    </Grid>
-                  </TabPanel>
+                Analytics
+              </Tab>
+              <Tab 
+                className="px-6 py-3 text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+                icon={MapPinIcon}
+              >
+                Map View
+              </Tab>
+              <Tab 
+                className="px-6 py-3 text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+                icon={ListBulletIcon}
+              >
+                List View
+              </Tab>
+            </TabList>
 
-                  <TabPanel>
-                    <Card>
-                      <Title>POIs Map</Title>
-                      <div className="h-[600px] mt-4">
-                        <Map data={geoData} />
+            <TabPanels>
+              <TabPanel>
+                <div className="p-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card className="shadow-lg hover:shadow-xl transition-shadow">
+                      <Title>Sentiment Distribution</Title>
+                      <div className="mt-4">
+                        <SentimentChart data={sentimentData} />
                       </div>
                     </Card>
-                  </TabPanel>
+                    <Card className="shadow-lg hover:shadow-xl transition-shadow">
+                      <Title>Emotion Analysis</Title>
+                      <div className="mt-4">
+                        <EmotionsChart data={emotionsData} />
+                      </div>
+                    </Card>
+                  </div>
+                </div>
+              </TabPanel>
 
-                  <TabPanel>
-                    <Card>
-                      <Title>POIs List</Title>
-                      <div className="mt-6">
-                        <Table>
-                          <TableHead>
-                            <TableRow>
-                              <TableHeaderCell>Name</TableHeaderCell>
-                              <TableHeaderCell>Category</TableHeaderCell>
-                              <TableHeaderCell>Sentiment</TableHeaderCell>
+              <TabPanel>
+                <div className="p-6">
+                  <Card className="shadow-lg hover:shadow-xl transition-shadow">
+                    <Title>Geographic Distribution</Title>
+                    <div className="h-[600px] mt-4 rounded-lg overflow-hidden">
+                      <Map data={geoData} />
+                    </div>
+                  </Card>
+                </div>
+              </TabPanel>
+
+              <TabPanel>
+                <div className="p-6">
+                  <Card className="shadow-lg hover:shadow-xl transition-shadow">
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHead>
+                          <TableRow className="bg-gray-50 dark:bg-gray-900">
+                            <TableHeaderCell className="font-semibold">Name</TableHeaderCell>
+                            <TableHeaderCell className="font-semibold">Category</TableHeaderCell>
+                            <TableHeaderCell className="font-semibold">Sentiment</TableHeaderCell>
+                            <TableHeaderCell className="font-semibold">Location</TableHeaderCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {pois.map((poi) => (
+                            <TableRow 
+                              key={poi._id}
+                              className="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
+                            >
+                              <TableCell className="font-medium">{poi.name}</TableCell>
+                              <TableCell>
+                                <Badge 
+                                  size="sm"
+                                  className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                >
+                                  {poi.category}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge
+                                  size="sm"
+                                  color={getSentimentColor(poi.sentiment.label)}
+                                  className="shadow-sm"
+                                >
+                                  {poi.sentiment.label}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-gray-500 dark:text-gray-400">
+                                {poi.location.coordinates[1].toFixed(4)}, {poi.location.coordinates[0].toFixed(4)}
+                              </TableCell>
                             </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {pois.map((poi) => (
-                              <TableRow key={poi._id}>
-                                <TableCell>{poi.name}</TableCell>
-                                <TableCell>
-                                  <Badge size="sm">{poi.category}</Badge>
-                                </TableCell>
-                                <TableCell>
-                                  <Badge
-                                    size="sm"
-                                    color={getSentimentColor(poi.sentiment.label)}
-                                  >
-                                    {poi.sentiment.label}
-                                  </Badge>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
 
-                        {/* Pagination Controls */}
-                        <div className="flex justify-center gap-2 mt-6">
-                          <Button
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            size="xs"
-                            color="gray"
-                          >
-                            Previous
-                          </Button>
-                          <Text className="px-4 py-2">
-                            Page {currentPage} of {totalPages}
-                          </Text>
-                          <Button
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            size="xs"
-                            color="gray"
-                          >
-                            Next
-                          </Button>
-                        </div>
+                    <div className="mt-6 px-4 py-3 bg-gray-50 dark:bg-gray-900 rounded-lg flex justify-between items-center">
+                      <Text className="text-gray-600 dark:text-gray-300">
+                        Showing {pois.length} of {totalPages * 50} POIs
+                      </Text>
+                      <div className="flex items-center gap-4">
+                        <Button
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          variant="secondary"
+                          size="sm"
+                          className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                        >
+                          Previous
+                        </Button>
+                        <Text className="text-gray-600 dark:text-gray-300">
+                          Page {currentPage} of {totalPages}
+                        </Text>
+                        <Button
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                          variant="secondary"
+                          size="sm"
+                          className="hover:bg-gray-100 dark:hover:bg-gray-800"
+                        >
+                          Next
+                        </Button>
                       </div>
-                    </Card>
-                  </TabPanel>
-                </TabPanels>
-              </TabGroup>
-            </Card>
-          </>
-        )}
+                    </div>
+                  </Card>
+                </div>
+              </TabPanel>
+            </TabPanels>
+          </TabGroup>
+        </Card>
       </div>
     </Layout>
   );
