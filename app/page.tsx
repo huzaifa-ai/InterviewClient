@@ -24,12 +24,14 @@ import {
   TableRow,
   TableCell
 } from '@tremor/react';
-import { MagnifyingGlassIcon, MapPinIcon, ChartPieIcon, ListBulletIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, ChartPieIcon, ListBulletIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import Layout from './components/Layout';
 import SearchInput from './components/SearchInput';
 import SentimentChart from './components/charts/SentimentChart';
 import EmotionsChart from './components/charts/EmotionsChart';
 import { exportToCSV } from './utils/helper';
+import { getSentimentColor } from './utils/helper';
+
 import Map from './components/Map';
 import {
   fetchPOIs,
@@ -182,17 +184,6 @@ export default function Home() {
 
   const handleViewChange = (index: number) => {
     updateUrlParams({ view: index === 0 ? null : index });
-  };
-
-  const getSentimentColor = (sentiment: string) => {
-    switch (sentiment.toLowerCase()) {
-      case 'positive':
-        return 'emerald';
-      case 'negative':
-        return 'rose';
-      default:
-        return 'gray';
-    }
   };
 
   if (error) {

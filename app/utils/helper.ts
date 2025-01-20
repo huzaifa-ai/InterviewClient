@@ -54,3 +54,4 @@ export const getSentimentColor = (sentiment: string) => {
         return '😐';
     }
   };
+

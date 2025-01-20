@@ -144,12 +144,6 @@ const Map: React.FC<MapProps> = ({ data }) => {
       bounds.extend(position);
     });
 
-    // Fit bounds with padding
-    if (markersRef.current.length > 0) {
-      mapInstanceRef.current?.fitBounds(bounds, {
-        padding: { top: 50, right: 50, bottom: 50, left: 50 }
-      });
-    }
   };
 
   return (
