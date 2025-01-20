@@ -228,6 +228,15 @@ export default function Home() {
           <div className="relative z-10">
             <h1 className="text-3xl font-bold text-white mb-2">POI Analytics Dashboard</h1>
             <p className="text-blue-100">Analyzing {pois.length} Points of Interest across {categories.length} categories</p>
+            
+            <div className="mt-6">
+              <SearchInput
+                value={searchTerm}
+                onChange={handleSearchChange}
+                placeholder="Search POIs..."
+                className="w-full max-w-lg"
+              />
+            </div>
           </div>
           <div className="absolute top-0 right-0 w-1/2 h-full opacity-10">
             <MapPinIcon className="w-full h-full" />
@@ -280,7 +289,7 @@ export default function Home() {
               <div>
                 <Text className="text-sm text-amber-600 dark:text-amber-300">Positive Sentiment</Text>
                 <Metric className="text-2xl font-bold text-amber-900 dark:text-amber-50">
-                  {Math.round((pois.filter(p => p.sentiment.label === 'possitive').length / pois.length) * 100)}%
+                  {Math.round((pois.filter(p => p.sentiment.label === 'Positive').length / pois.length) * 100)}%
                 </Metric>
               </div>
             </div>
