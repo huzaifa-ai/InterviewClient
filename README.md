@@ -1,3 +1,5 @@
+Note: I have pushed the env file as well just for the testing purposes. But we should never push secret keys to github
+
 # Points of Interest Frontend
 
 This is the frontend application for the Points of Interest project, built with Next.js. It provides an interactive map interface to view and analyze points of interest with emotional analysis.
